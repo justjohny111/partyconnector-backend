@@ -1,7 +1,11 @@
-import { parties, code6 } from "./_store.js";
+import { code6, putParty } from "./_kv.js";
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+
+  if (req.method === "OPTIONS") return res.status(200).json({ ok: true });
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const hostName = req.body?.hostName || "host";
@@ -12,9 +16,9 @@ export default function handler(req, res) {
     hostName,
     members: [],
     currentModId: null,
-    lastRequest: null
+    lastRequest: null,
   };
 
-  parties.set(partyCode, party);
+  await putParty(partyCode, party);
   return res.status(200).json({ partyCode });
 }
